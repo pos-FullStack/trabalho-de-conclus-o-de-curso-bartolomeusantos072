@@ -28,7 +28,7 @@ services:
       NEXT_PUBLIC_IMGBB_API_KEY: ${IMGBB_API_KEY:-}
     ports:
       - "3000:3000"
-    command: sh -c "npx prisma migrate deploy && npm start"
+    command: sh -c "until npx prisma migrate deploy; do echo 'Banco ainda não está pronto, tentando novamente em 3s...'; sleep 3; done; npm start"
 
 volumes:
   db_data:
