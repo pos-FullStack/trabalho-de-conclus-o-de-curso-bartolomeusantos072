@@ -1,6 +1,3 @@
-Aqui está o conteúdo integral em **texto Markdown puro** para você copiar diretamente para o seu editor ou para o Google Docs mantendo a sintaxe exata do `README.md`:
-
-```markdown
 # SISTEMA WEB FULL STACK PARA GESTÃO E AVALIAÇÃO DE CARDÁPIO ESCOLAR: ARQUITETURA RESTFUL, REATIVIDADE E GOVERNANÇA DE DADOS NA MERENDA PÚBLICA
 
 Software desenvolvido como Trabalho de Conclusão de Curso (TCC) apresentado como exigência para obtenção do título de Especialista em Desenvolvimento Web Full Stack pelo Instituto Federal do Sudeste de Minas Gerais – *Campus* Manhuaçu.
