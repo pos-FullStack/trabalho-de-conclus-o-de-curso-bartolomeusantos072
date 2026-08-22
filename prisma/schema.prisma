@@ -1,0 +1,95 @@
+// Schema do banco de dados — Sistema de Cardápio Escolar
+// Rodar: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Papel {
+  ADMINISTRADOR
+  NUTRICIONISTA
+}
+
+enum Turno {
+  MANHA
+  INTEGRAL
+  TARDE
+  NOITE
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  email      String   @unique
+  senhaHash  String
+  papel      Papel    @default(NUTRICIONISTA)
+  criadoEm   DateTime @default(now())
+
+  cardapiosCriados Menu[]
+
+  @@map("users")
+}
+
+model Menu {
+  id             Int      @id @default(autoincrement())
+  dataReferencia DateTime @db.Date
+  turno          Turno
+  pratoPrincipal String
+  lanche         String?
+  criadoPorId    Int
+  criadoPor      User     @relation(fields: [criadoPorId], references: [id])
+  criadoEm       DateTime @default(now())
+
+  feedbacks      Feedback[]
+  itensPrato     MenuIngrediente[] // preparado para o controle de estoque futuro
+
+  @@index([dataReferencia, turno])
+  @@map("menus")
+}
+
+model Feedback {
+  id                  Int      @id @default(autoincrement())
+  menuId              Int
+  menu                Menu     @relation(fields: [menuId], references: [id])
+  nota                Int      // 0 a 10
+  categoriaComentario String
+  mensagem            String?
+  fotoUrl             String?
+  criadoEm            DateTime @default(now())
+
+  @@index([menuId])
+  @@map("feedbacks")
+}
+
+// ---------------------------------------------------------------------
+// Modelos abaixo NÃO fazem parte do escopo desta entrega.
+// Deixados aqui apenas como base de extensão para um futuro módulo
+// de controle de estoque / recomendação de pratos.
+// ---------------------------------------------------------------------
+
+model Ingrediente {
+  id            Int      @id @default(autoincrement())
+  nome          String
+  unidadeMedida String   // kg, un, litro...
+  quantidade    Float    @default(0)
+
+  usadoEm MenuIngrediente[]
+
+  @@map("ingredientes")
+}
+
+model MenuIngrediente {
+  id             Int         @id @default(autoincrement())
+  menuId         Int
+  menu           Menu        @relation(fields: [menuId], references: [id])
+  ingredienteId  Int
+  ingrediente    Ingrediente @relation(fields: [ingredienteId], references: [id])
+  quantidadeUsada Float
+
+  @@map("menu_ingredientes")
+}
