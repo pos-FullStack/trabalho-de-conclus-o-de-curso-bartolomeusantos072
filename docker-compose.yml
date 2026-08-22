@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db001:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cardapio
+      POSTGRES_PASSWORD: cardapio
+      POSTGRES_DB: cardapio_escolar
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app001:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db001
+    environment:
+      DATABASE_URL: postgresql://cardapio:cardapio@db001:5432/cardapio_escolar
+      JWT_SECRET: troque-este-segredo-em-producao
+      NEXT_PUBLIC_IMGBB_API_KEY: ${IMGBB_API_KEY}
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
