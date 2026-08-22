@@ -144,14 +144,3 @@ docker compose exec app001 npm test
 * **Senha:** `cardapio`
 
 ```
-
-### Como colar no Google Docs mantendo a formatação:
-1. Abra um documento em branco no [Google Docs](https://docs.new).
-2. Se você colar o texto diretamente, o Docs interpretará a sintaxe Markdown se o suporte a Markdown estiver ativo em **Ferramentas > Preferências > Detectar markdown automaticamente**.
-3. Como alternativa, salve o conteúdo acima diretamente em um arquivo chamado `README.md` na raiz do projeto e envie para o GitHub com:
-   ```bash
-   git add README.md
-   git commit -m "docs: atualiza documentacao completa do README com instrucoes de execucao"
-   git push
-
-```
