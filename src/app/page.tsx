@@ -1,35 +1,43 @@
+import MenuCard from "@/components/MenuCard";
+import FeedbackForm from "@/components/FeedbackForm";
 import { prisma } from "@/lib/db";
-import Link from "next/link";
+import { inferirTurno } from "@/lib/turno";
 
-export default async function DashboardAdmin() {
-  const totalFeedbacks = await prisma.feedback.count();
-  const mediaNotaResult = await prisma.feedback.aggregate({ _avg: { nota: true } });
-  const totalCardapios = await prisma.menu.count();
+// Impede o Next.js de tentar pré-renderizar esta página em build time
+// (ela consulta o banco de dados, que só existe em runtime).
+export const dynamic = "force-dynamic";
 
-  const mediaNota = mediaNotaResult._avg.nota;
+// RF01/RF02: página renderizada no servidor já buscando o cardápio do turno atual.
+export default async function PaginaAluno() {
+  const turno = inferirTurno();
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const menu = turno
+    ? await prisma.menu.findFirst({
+        where: { dataReferencia: hoje, turno: turno as any },
+        orderBy: { criadoEm: "desc" },
+      })
+    : null;
 
   return (
-    <main style={{ maxWidth: 720, margin: "0 auto", padding: "2rem 1rem" }}>
-      <h1>Painel de Gestão</h1>
+    <main style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1rem" }}>
+      <h1>Cardápio Escolar</h1>
 
-      <section style={{ display: "flex", gap: "1.5rem", margin: "1.5rem 0" }}>
-        <Metric titulo="Cardápios cadastrados" valor={totalCardapios} />
-        <Metric titulo="Avaliações recebidas" valor={totalFeedbacks} />
-        <Metric titulo="Nota média" valor={mediaNota ? mediaNota.toFixed(1) : "—"} />
-      </section>
-
-      <nav>
-        <Link href="/admin/cardapios">Gerenciar cardápios →</Link>
-      </nav>
+      {!turno && <p>A cantina está fora do horário de funcionamento no momento.</p>}
+      {turno && !menu && <p>O cardápio de hoje ainda não foi cadastrado para este turno.</p>}
+      {menu && (
+        <>
+          <MenuCard
+            turno={menu.turno}
+            pratoPrincipal={menu.pratoPrincipal}
+            lanche={menu.lanche}
+          />
+          <h2>Deixe sua avaliação</h2>
+          <FeedbackForm menuId={menu.id} />
+        </>
+      )}
     </main>
-  );
-}
-
-function Metric({ titulo, valor }: { titulo: string; valor: string | number }) {
-  return (
-    <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: "1rem", flex: 1, textAlign: "center" }}>
-      <p style={{ fontSize: "1.75rem", fontWeight: 700, margin: 0 }}>{valor}</p>
-      <p style={{ color: "#666", margin: 0 }}>{titulo}</p>
-    </div>
   );
 }

@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
+// Impede o Next.js de tentar pré-renderizar esta página em build time
+// (ela consulta o banco de dados, que só existe em runtime).
+export const dynamic = "force-dynamic";
+
 export default async function DashboardAdmin() {
   const totalFeedbacks = await prisma.feedback.count();
   const mediaNotaResult = await prisma.feedback.aggregate({ _avg: { nota: true } });
